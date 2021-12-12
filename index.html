@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My First Heading</h1>
+<p>My first paragraph.</p>
+<canvas id="c"></canvas>
+</body>
+
+<!-- Must have type="module" -->
+<script type="module">
+    import * as THREE from 'https://threejs.org/build/three.module.js';
+
+    function main() {
+        const canvas = document.querySelector('#c');
+
+        // we ask THREE to draw or render everything onto the canvas
+        const renderer = new THREE.WebGLRenderer({ canvas });
+
+        const fov = 75;  // field of view in vertical degrees
+        const aspect = 2;  // the canvas default: 300x150 pixels which makes the aspect 300/150 or 2
+
+        // near and far represent the space in front of the camera that will be rendered. 
+        // Anything before that range or after that range will be clipped (not drawn).
+        const near = 0.1; 
+        const far = 9;
+
+        // the above four variables define the frustum,  A frustum is the name of a 3d shape that is 
+        // like a pyramid with the tip sliced off. Think of the word "frustum" as another 3D shape 
+        // like sphere, cube, prism, frustum.
+
+        // pass in the frustum as 4 parameters
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+        // The camera defaults to looking down the -Z axis with +Y up. We'll put our cube at the 
+        // origin so we need to move the camera back a little from the origin in order to see anything.
+        camera.position.z = 2;
+
+        // a scene is the root of a form of scene graph. Anything you want three.js to draw needs to 
+        // be added to the scene.
+        const scene = new THREE.Scene();
+
+        // this adds lighting to our scene
+        // BUT it only works if the MESH is PhongMaterial not BasicMaterial
+        // *See line 63
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        // This setting the light's position to -1, 2, 4 so it's slightly on the left, above, and behind our camera.
+        light.position.set(-1,0,4);
+        scene.add(light);
+
+        // Almost anything we want to display in Three.js needs geometry which defines the vertices 
+        // that make up our 3D object.
+        const boxWidth = 1;
+        const boxHeight = 1;
+        const boxDepth = 1;
+        const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+        // create the basic material that makes up a Mesh object
+        // const material = new THREE.MeshBasicMaterial({color: 0x44aa88});
+
+        // create Mesh object that accepts light 
+        const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
+
+        // Mesh is a combination of 3 things:
+        // 1. A Geometry (the shape of the object)
+        // 2. A Material (how to draw the object, shiny or flat, what color, what texture(s) to apply. Etc.)
+        // 3. The position, orientation, and scale of that object in the scene relative to its parent. 
+        
+        // In this example the parent or the 3rd element of our Mesh is the scence itself
+        const cube = new THREE.Mesh(geometry, material);
+
+        // add cube to scene
+        scene.add(cube);
+
+        // We can then render the scene by calling the renderer's 'render' function and 
+        // passing it:
+        // 1. the scene 
+        // 2. the camera
+
+        // RENDERS BASIC CUBE NO ANIMATION
+        // renderer.render(scene, camera);
+
+        // animation function
+        function render(time) {
+            time *= 0.001;  // convert time to seconds
+            
+            cube.rotation.x = time;
+            cube.rotation.y = time;
+            
+            renderer.render(scene, camera);
+            
+            requestAnimationFrame(render);
+        }
+
+        // RENDERS BASIC CUBE WITH ANIMATION 
+        render();
+    }
+
+    main()
+
+</script>
+</html>
